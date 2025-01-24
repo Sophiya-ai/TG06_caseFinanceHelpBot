@@ -25,6 +25,7 @@ from aiogram.fsm.state import State, StatesGroup
 # импортируем библиотеку логирования - ведение журнала событий для записи сообщений, событий или информации о работе программы
 import logging
 import requests
+import random
 
 from keyboards import keyboard
 from config import TOKEN_CW
@@ -90,6 +91,7 @@ async def registration(message: Message):
         await message.answer('Вы успешно зарегистрированы!')
 
 
+# https://www.exchangerate-api.com/docs/overview
 @dp.message(F.text == 'Курс валют')
 async def exchange_rates(message: Message):
     url = 'https://v6.exchangerate-api.com/v6/d28c999c5a8bca892eefcbaa/latest/USD'
@@ -109,6 +111,22 @@ async def exchange_rates(message: Message):
 
     except:
         await message.answer('Произошла ошибка!')
+
+
+@dp.message(F.text == 'Советы по экономии')
+async def send_tips(message: Message):
+    tips = [
+        "Совет 1: Ведите бюджет и следите за своими расходами.",
+        "Совет 2: Откладывайте часть доходов на сбережения.",
+        "Совет 3: Покупайте товары по скидкам и распродажам."
+    ]
+    tip = random.choice(tips)
+    await message.answer(tip)
+
+
+@dp.message(F.text == 'Личные финансы')
+async def finances(message: Message):
+    
 
 
 # асинхронная функция main, которая будет запускаться и работать одновременно со всем остальным.
