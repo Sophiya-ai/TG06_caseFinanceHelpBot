@@ -125,9 +125,60 @@ async def send_tips(message: Message):
 
 
 @dp.message(F.text == 'Личные финансы')
-async def finances(message: Message):
-    
+async def finances(message: Message, state: FSMContext):
+    await state.set_state(FinancesForm.category1)
+    await message.reply("Введите первую категорию расходов:")
 
+
+@dp.message(FinancesForm.category1)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(category1=message.text)
+    await state.set_state(FinancesForm.expenses1)
+    await message.reply(f"Введите расходы для категории <{message.text}>:")
+
+
+@dp.message(FinancesForm.expenses1)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(expenses1=float(message.text))
+    await state.set_state(FinancesForm.category2)
+    await message.reply(f"Введите вторую категорию расходов:")
+
+
+@dp.message(FinancesForm.category2)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(category2=message.text)
+    await state.set_state(FinancesForm.expenses2)
+    await message.reply(f"Введите расходы для категории <{message.text}>:")
+
+
+@dp.message(FinancesForm.expenses2)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(expenses2=float(message.text))
+    await state.set_state(FinancesForm.category3)
+    await message.reply(f"Введите третью категорию расходов:")
+
+
+@dp.message(FinancesForm.category3)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(category3=message.text)
+    await state.set_state(FinancesForm.expenses3)
+    await message.reply(f"Введите расходы для категории <{message.text}>:")
+
+
+@dp.message(FinancesForm.expenses3)
+async def cat1(message: Message, state: FSMContext):
+    await state.update_data(expenses3=float(message.text))
+    data = await state.get_data()
+    telegram_id = message.from_user.id
+    cur.execute('''
+    UPDATE users SET category1 = ?, expenses1 = ?, category2 = ?, expenses2 = ?, category3 = ?, expenses3 = ? 
+     WHERE telegram_id = ?''',
+                (data['category1'], data['category2'], data['category3'],
+                 data['expenses1'], data['expenses2'], data['expenses3'],  telegram_id))
+    conn.commit()
+    await state.clear()
+
+    await message.answer('Категории и расходы по ним сохранены')
 
 # асинхронная функция main, которая будет запускаться и работать одновременно со всем остальным.
 # await здесь — это действие, которое происходит с Telegram-ботом, и
