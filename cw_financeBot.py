@@ -32,10 +32,7 @@ import aiohttp
 # импортируем библиотеку логирования - ведение журнала событий для записи сообщений, событий или информации о работе программы
 import logging
 
-#для создания клавиатур библиотеки
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
-
+from keyboards import keyboard
 from config import TOKEN_CW, API_KEY
 
 bot = Bot(token=TOKEN_CW)
@@ -44,6 +41,45 @@ dp = Dispatcher()
 # настроим логирование - в скобках уровня логирования. Уровень info просто дает информацию о ходе выполнения работы программы.
 # Есть другие уровни логирования, такие как debug, error, critical.
 logging.basicConfig(level=logging.INFO)
+
+# Создаем БД. id проставляется автоматически.
+# в тройных кавычках пропишем действие с помощью запроса CREATE TABLE
+conn = sqlite3.connect('user.db')
+cur = conn.cursor()
+cur.execute('''
+CREATE TABLE IF NOT EXISTS users(
+    id INTEGER PRIMARY KEY,
+    telegram_id INTEGER UNIQUE,
+    name TEXT,
+    category1 TEXT,
+    category2 TEXT,
+    category3 TEXT,
+    expenses1 REAL,
+    expenses2 REAL,
+    expenses3 REAL)
+''')
+conn.commit()
+
+
+# Чтобы запрашивать информацию и ждать ответа, нужно использовать состояния.
+# Создаём класс, в котором будут прописаны эти состояния для каждой категории и каждого значения категории
+class FinancesForm(StatesGroup):
+    category1 = State()
+    expenses1 = State()
+    category2 = State()
+    expenses2 = State()
+    category3 = State()
+    expenses3 = State()
+
+
+@dp.message(CommandStart())
+async def start(message: Message):
+    await message.answer("Привет! Я ваш личный финансовый помощник. Выберите одну из опций в меню:",
+                         reply_markup=keyboard)
+
+
+
+
 
 
 
