@@ -22,19 +22,12 @@ from aiogram.fsm.context import FSMContext
 # и StatesGroup для группировки состояний
 from aiogram.fsm.state import State, StatesGroup
 
-# импортируем библиотеку для сохранения состояния в оперативной памяти
-from aiogram.fsm.storage.memory import MemoryStorage
-
-# библиотека — IOHTTP для выполнения асинхронных HTTP-запросов.
-# бот будет подключаться к API прогнозов погоды и выдавать прогноз для конкретного пользователя, город которого будет записан в БД
-import aiohttp
-
 # импортируем библиотеку логирования - ведение журнала событий для записи сообщений, событий или информации о работе программы
 import logging
 import requests
 
 from keyboards import keyboard
-from config import TOKEN_CW, API_KEY
+from config import TOKEN_CW
 
 bot = Bot(token=TOKEN_CW)
 dp = Dispatcher()
@@ -60,7 +53,6 @@ CREATE TABLE IF NOT EXISTS users(
     expenses3 REAL)
 ''')
 conn.commit()
-conn.close()
 
 
 # Чтобы запрашивать информацию и ждать ответа, нужно использовать состояния.
@@ -76,7 +68,7 @@ class FinancesForm(StatesGroup):
 
 @dp.message(CommandStart())
 async def start(message: Message):
-    await message.answer("Привет! Я ваш личный финансовый помощник. Выберите одну из опций в меню:",
+    await message.answer("Привет! Я ваш личный финансовый помощник. Выберите одну из опций в меню!",
                          reply_markup=keyboard)
 
 
@@ -86,7 +78,7 @@ async def registration(message: Message):
     name = message.from_user.full_name
 
     cur.execute('''
-    SELECT * FROM user WHERE telegram_id =?''', (telegram_id,))
+    SELECT * FROM users WHERE telegram_id =?''', (telegram_id,))
     user = cur.fetchone()
 
     if user:
@@ -95,27 +87,28 @@ async def registration(message: Message):
         cur.execute('''
         INSERT INTO users (telegram_id, name) VALUES (?,?)''', (telegram_id, name))
         conn.commit()
-        conn.close()
         await message.answer('Вы успешно зарегистрированы!')
 
 
 @dp.message(F.text == 'Курс валют')
 async def exchange_rates(message: Message):
-    url = 'https://v6.exchangerate-api.com/v6/latest/USD'
+    url = 'https://v6.exchangerate-api.com/v6/d28c999c5a8bca892eefcbaa/latest/USD'
     try:
         response = requests.get(url)
         data = response.json()
-        if response.status_code !=200:
+        if response.status_code != 200:
             await message.answer('Не удалось получить данные о курсе валют!')
             return
+
         usd_to_rub = data['conversion_rates']['RUB']
         eur_to_usd = data['conversion_rates']['EUR']
         eur_to_rub = eur_to_usd * usd_to_rub
+
         await message.answer(f'1 USD - {usd_to_rub: .2f} RUB\n'
                              f'1 EUR - {eur_to_rub: .2f} RUB\n')
-    except:
-        ...
 
+    except:
+        await message.answer('Произошла ошибка!')
 
 
 # асинхронная функция main, которая будет запускаться и работать одновременно со всем остальным.
