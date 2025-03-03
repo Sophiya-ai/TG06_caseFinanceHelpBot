@@ -11,4 +11,8 @@
    ```bash
    pip install -r requirements.txt
    ```
- 
+
+ Добавьте токен своего бота в config.py:
+     ```bash
+     TOKEN_CW="your-bot-token"     
+       ```
