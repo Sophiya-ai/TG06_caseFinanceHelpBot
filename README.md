@@ -8,11 +8,11 @@
 4. Ведение учёта личных финансов по трём категориям.
 
 Установите зависимости:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+```
 
- Добавьте токен своего бота в config.py:
-     ```bash
-     TOKEN_CW="your-bot-token"     
-       ```
+Добавьте токен своего бота в config.py:
+```bash
+TOKEN_CW="your-bot-token"     
+```
