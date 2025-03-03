@@ -1,1 +1,1 @@
-TOKEN_CW ='8128353058:AAHxAt8ixolikuac8WfLxCMC67hNWhZe-Ts'
+TOKEN_CW ='your-bot-token'
